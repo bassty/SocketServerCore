@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <script src="app.js"></script>
+    <!-- Webseite an Mobilgerät anpassen -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>SINS</title>
+
+    <style>
+        .sensors {
+            /*float:left;*/
+            margin: 15px 20px 15px 80px;
+        }
+
+        .sensorVal {
+            float: right;
+        }
+    </style>
+
+
+</head>
+<body>
+
+
+
+    <h1 style="color:green; text-align:center; text-decoration:underline; margin: 15px 10px 50px 10px; font-size:50px">Remotezugriff<br /> SmartInfo NetworkStation</h1>
+
+
+    <!--<h2 style="color:black; margin: 15px 20px 45px 220px; text-decoration:underline; font-size:30px">Sensordaten</h2>-->
+
+    <table style="width:100%">
+        <tr>
+            <td><h2 style="color:black; margin: 15px 40px 50px 220px; text-decoration:underline; font-size:30px">Sensordaten</h2></td>
+            <td><h2 style="color:black; margin: 15px 40px 50px 40px; text-decoration:underline; font-size:30px">Newsfeed: </h2><br /></td>
+            <td><h2 style="color:black; margin: 15px 20px 50px 40px; text-decoration:underline; font-size:30px">Datum und Uhrzeit: </h2><br /></td>
+        </tr>
+    </table>
+
+    <!--<h2 style="color:black; float:right; margin-right: 280px">Uhrzeit: </h2><br />
+    <div style="float:right" id="content"></div>-->
+    <!--<h3>Temperatur: </h3><textarea id="TextArea1" rows="1" cols="5" style="float:right"></textarea>
+
+    <br />
+    <h3>Humidity: </h3>
+    <textarea id="TextArea1" rows="2" cols="20"></textarea>
+    <br />
+    <h3>Pressure: </h3>-->
+    <!--<textarea id="TextArea1" rows="2" cols="20"></textarea>-->
+    <!--<ul>
+        <li><label class="sensors">Temperatur: </label>
+        <label class="sensorVal" id="labelTemp" style="border:dotted; border-color:black; float:right">SensorValue</label><br /></li>
+
+        <li><label class="sensors">Humidity: </label>
+        <label class="sensorVal" id="labelHumi" style="border:dotted; border-color:black; float:left">SensorValue</label><br /></li>
+
+        <li><label class="sensors">Pressure: </label>
+        <label class="sensorVal" id="labelPress" style="border:dotted; border-color:black; float:left">SensorValue</label><br /></li>
+    </ul>-->
+
+    <table style="float:right; font-size:30px; margin-right:50px">
+        <tr>
+            <td><time id="content" style="margin-right:150px"></time></td>
+        </tr>
+    </table>
+    <br />
+
+    <h2 style="float:right;  text-align:right; margin: 150px 10px 0px 0px">Wetter: </h2>
+
+    <table style="width:25%; font-size:25px; float:left; margin-left:80px">
+        <tr>
+            <td>Temperatur: </td>
+            <td>label 2</td>
+            <!--<td>label 3</td>-->
+        </tr>
+
+        <tr>
+            <td>Humidity: </td>
+            <td>label 5</td>
+            <!--<td>label 6</td>-->
+        </tr>
+
+        <tr>
+            <td>Pressure: </td>
+            <td>label 8</td>
+            <!--<td>label 9</td>-->
+        </tr>
+    </table><br />
+    <textarea id="TextArea1" rows="50" cols="50" style="width:550px; align-self:center; float:right"></textarea>
+
+
+    <!--Button-->
+    <input style="vertical-align:middle; margin:50px 50px 50px 150px; float:left; width:200px; height:50px" id="Button1" type="button" value="Refresh" />
+
+    <button onclick="GetSensor()">
+        Refresh the Value!
+    </button>
+
+
+
+
+</body>
+</html>

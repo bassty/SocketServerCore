@@ -13,16 +13,11 @@ namespace SocketServerCore
         private static List<Socket> clientSockets = new List<Socket>();
         private static Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-        static void Main(string[] args)
+        
+
+        public static void SetupServer()
         {
             Console.Title = "Server";
-
-            SetupServer();
-            Console.Read();
-        }
-
-        private static void SetupServer()
-        {
             Console.WriteLine("Setting up Server...");
             serverSocket.Bind(new IPEndPoint(IPAddress.Any, 100));
             serverSocket.Listen(5);     //5 is the number of Clients to witch the server can listen
