@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Resources;
@@ -17,16 +18,30 @@ namespace SocketServerCore
             httplistener = new HttpListener();
 
             //save a new prefix to the prefix collection at the HttpListener class
-            httplistener.Prefixes.Add(String.Format("http://*:{0}{1}", 8081, "/"));
+            httplistener.Prefixes.Add(String.Format("http://localhost:{0}{1}", 8081, "/"));
 
             //start the listener to listen
-            httplistener.Start();
+            try
+            {
+                httplistener.Start();
+            }
+            catch (Exception)
+            {
+                //RestartAsAdmin();
+            }
 
             httplistener.BeginGetContext(new AsyncCallback(ContextReceivedCallback), null);
 
             //Stop Server
             Console.Read();
         }
+
+        //private static void RestartAsAdmin()
+        //{
+        //    var startInfo = new ProcessStartInfo("dotnet.exe") { Verb = "runas"};
+        //    Process.Start(startInfo);
+        //    Environment.Exit(0);
+        //}
 
         private static void ContextReceivedCallback(IAsyncResult ar)
         {
@@ -41,12 +56,15 @@ namespace SocketServerCore
 
             //print out the context
             Console.WriteLine("Request: {0}", listenerContext.Request.Url.LocalPath);
+
+            SendRequest(listenerContext);
         }
 
         private static void SendRequest(HttpListenerContext listenerContext)
         {
             //delete the prefix from the ressource name
-            string filename = listenerContext.Request.Url.LocalPath.Remove(0, "/myApp".Length);
+            //string filename = listenerContext.Request.Url.LocalPath.Remove(0, "/myApp".Length);
+            string filename = listenerContext.Request.Url.LocalPath;
 
             byte[] bytes;
             string byteStream = "";
@@ -61,7 +79,7 @@ namespace SocketServerCore
             }
             else
             {
-                bytes = GetResource(filename);
+                bytes = GetResource("index.html");
             }
 
 
@@ -83,7 +101,8 @@ namespace SocketServerCore
             try
             {
                 //create a new Stream to read the HTML-file
-                using (FileStream filestream = new FileStream("content/" + filename, FileMode.Open, FileAccess.Read, FileShare.Read))
+                //using (FileStream filestream = new FileStream("content/" + filename, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (FileStream filestream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     //create a byte array to store the bytes from the file
                     byte[] readBuf = new byte[filestream.Length];
