@@ -10,6 +10,7 @@ namespace ClientCore
     {
 
         private static Socket clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        private static int port = 8081;
         static void Main(string[] args)
         {
             Console.Title = "Client";
@@ -25,17 +26,18 @@ namespace ClientCore
             while (true)
             {
                 Thread.Sleep(500);
-                //Console.Write("Enter a request: ");
-                //string req = Console.ReadLine();
-                byte[] buffer = Encoding.ASCII.GetBytes("get time");
+            Console.Write("Enter a request: ");
+            string req = Console.ReadLine();
+            byte[] buffer = Encoding.ASCII.GetBytes(req);
+            //byte[] buffer = Encoding.ASCII.GetBytes("get time");
 
-                clientSocket.Send(buffer);
-                byte[] receivedBuf = new byte[1024];
-                int rec = clientSocket.Receive(receivedBuf);
+            clientSocket.Send(buffer);
+            byte[] receivedBuf = new byte[1024];
+            int rec = clientSocket.Receive(receivedBuf);
 
-                byte[] data = new byte[rec];
-                Array.Copy(receivedBuf, data, rec);
-                Console.WriteLine("Received: " + Encoding.ASCII.GetString(data));
+            byte[] data = new byte[rec];
+            Array.Copy(receivedBuf, data, rec);
+            Console.WriteLine("Received: " + Encoding.ASCII.GetString(data));
 
             }
         }
@@ -49,7 +51,7 @@ namespace ClientCore
                 try
                 {
                     attempts++;
-                    clientSocket.Connect(IPAddress.Loopback, 100);
+                    clientSocket.Connect(IPAddress.Loopback, port);
                 }
                 catch (SocketException)
                 {

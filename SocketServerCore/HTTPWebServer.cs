@@ -3,34 +3,70 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
+using System.Net.WebSockets;
 using System.Resources;
 using System.Text;
+using System.Threading;
 
 namespace SocketServerCore
 {
     class HTTPWebServer
     {
         private static HttpListener httplistener;
+        private static TcpListener tcpListener;
+        private static Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+        private static string htmlFile = "index.html";
+        private static int port = 8081;
 
         public static void InitializeServer()
         {
             //create a new listener, who listens at a specific Port
             httplistener = new HttpListener();
+            tcpListener = new TcpListener(IPAddress.Any, port);
+
+            
+           
 
             //save a new prefix to the prefix collection at the HttpListener class
-            httplistener.Prefixes.Add(String.Format("http://localhost:{0}{1}", 8081, "/"));
+            //httplistener.Prefixes.Add(String.Format("http://bastitestmqtt.ddns.net:{0}{1}", 8081, "/"));
+            httplistener.Prefixes.Add(String.Format("http://localhost:{0}{1}", port, "/"));
 
             //start the listener to listen
             try
             {
                 httplistener.Start();
+                tcpListener.Start();
+
+                Thread socketThread = new Thread(new ThreadStart(tcpListener.Start));
+                socketThread.Start();
+                serverSocket = tcpListener.AcceptSocket();
+
+                //create a new Thread to run the server/listener
+                Thread serverThread = new Thread(new ThreadStart(httplistener.Start));
+                serverThread.Start();
+
+                if (serverSocket.Connected)
+                {
+                    Console.WriteLine("Connected to a Socket!");
+                }
+                
             }
             catch (Exception)
             {
                 //RestartAsAdmin();
             }
 
-            httplistener.BeginGetContext(new AsyncCallback(ContextReceivedCallback), null);
+            if (httplistener != null)
+            {
+                httplistener.BeginGetContext(new AsyncCallback(ContextReceivedCallback), null); 
+            }
+            else
+            {
+                HttpListener httpListener = new HttpListener();
+                httplistener.BeginGetContext(new AsyncCallback(ContextReceivedCallback), null);
+            }
 
             //Stop Server
             Console.Read();
@@ -64,9 +100,10 @@ namespace SocketServerCore
         {
             //delete the prefix from the ressource name
             //string filename = listenerContext.Request.Url.LocalPath.Remove(0, "/myApp".Length);
-            string filename = listenerContext.Request.Url.LocalPath;
+            //string filename = listenerContext.Request.Url.LocalPath;
+            string filename = listenerContext.ToString();
 
-            byte[] bytes;
+            //byte[] bytes;
             string byteStream = "";
 
             if (filename == "time.cmd")
@@ -75,28 +112,43 @@ namespace SocketServerCore
             }
             if (!string.IsNullOrEmpty(byteStream))
             {
-                bytes = Encoding.ASCII.GetBytes(byteStream);
+                byteStream = GetResource(htmlFile);
+                //bytes = Encoding.ASCII.GetBytes(byteStream);
             }
+            //if(filename == "/index.html")
             else
             {
-                bytes = GetResource("index.html");
+                byteStream = GetResource(htmlFile);
+
+                if (serverSocket.Connected)
+                {
+                    serverSocket.Send(Encoding.ASCII.GetBytes(byteStream));
+                }
+                else
+                {
+                    Console.WriteLine("Socket not Connected!");
+                }
+                
+                
+                //bytes = GetResource("index.html");
             }
 
 
-            if (bytes != null)
-            {
-                listenerContext.Response.OutputStream.Write(bytes, 0, bytes.Length);
-                listenerContext.Response.Close();
-            }
-            else
-            {
-                //WriteError(listenerContext, 404);
-                    return;
-            }
+            //if (bytes != null)
+            //{
+            //    listenerContext.Response.OutputStream.Write(bytes, 0, bytes.Length);
+            //    listenerContext.Response.Close();
+            //}
+            //else
+            //{
+            //    //WriteError(listenerContext, 404);
+            //        return;
+            //}
 
         }
 
-        private static byte[] GetResource(string filename)
+        //private static byte[] GetResource(string filename)
+        private static string GetResource(string filename)
         {
             try
             {
@@ -105,13 +157,22 @@ namespace SocketServerCore
                 using (FileStream filestream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     //create a byte array to store the bytes from the file
-                    byte[] readBuf = new byte[filestream.Length];
+                    //byte[] readBuf = new byte[filestream.Length];
 
+                    //string page = "";
+
+                    var readFile = File.ReadAllText(filename);
+
+                    //foreach (var line in readFile)
+                    //{
+                    //    page += line;
+                    //}
                     //read te bytes of the file into the stream
-                    filestream.Read(readBuf, 0, readBuf.Length);
+                    //filestream.Read(readBuf, 0, readBuf.Length);
 
                     //return the buffer
-                    return readBuf;
+                    //return readBuf;
+                    return readFile;
                 }
             }
             catch
