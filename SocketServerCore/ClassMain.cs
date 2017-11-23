@@ -8,11 +8,11 @@ namespace SocketServerCore
     {
         static void Main(string[] args)
         {
-            
+
 
             WebSocketServerProgram.SetupServer();
-            HTTPWebServer.InitializeServer();
-            
+            //HTTPWebServer.InitializeServer();
+
 
             Console.Read();
         }

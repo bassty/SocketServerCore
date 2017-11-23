@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SocketServerCore
@@ -11,18 +13,50 @@ namespace SocketServerCore
     {
         private static byte[] buffer = new byte[1024];
         private static List<Socket> clientSockets = new List<Socket>();
-        private static Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        public static Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-        
+        private static TcpListener tcpListener = new TcpListener(IPAddress.Any, 8081);
+
+        private static int httpStartPos = 0;
 
         public static void SetupServer()
         {
+            tcpListener.Start();
+
+            Thread socketThread = new Thread(new ThreadStart(tcpListener.Start));
+            socketThread.Start();
+
             Console.Title = "Server";
             Console.WriteLine("Setting up Server...");
-            serverSocket.Bind(new IPEndPoint(IPAddress.Any, 100));
+            serverSocket.Bind(new IPEndPoint(IPAddress.Any, 8080));
             serverSocket.Listen(5);     //5 is the number of Clients to witch the server can listen
 
+            //StartListening();
+
             serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
+            //tcpListener.BeginAcceptSocket(new AsyncCallback(AcceptCallback), null);
+        }
+
+        private static void StartListening()
+        {
+            serverSocket = tcpListener.AcceptSocket();
+
+            if (serverSocket.Connected)
+            {
+                Console.WriteLine("Socket Connected");
+
+                byte[] receivedBytes = new Byte[1024];
+                int i = serverSocket.Receive(receivedBytes, receivedBytes.Length, 0);
+
+                string sBuffer = Encoding.ASCII.GetString(receivedBytes);
+
+                httpStartPos = sBuffer.IndexOf("HTTP", 1);
+
+                string httpVers = sBuffer.Substring(httpStartPos,0);
+
+
+
+            }
         }
 
         private static void AcceptCallback(IAsyncResult AR)
@@ -56,6 +90,7 @@ namespace SocketServerCore
             else
             {
                 response = DateTime.Now.ToLongTimeString();
+                response = GetResource("index.html");
                 
             }
 
@@ -69,5 +104,22 @@ namespace SocketServerCore
             Socket socket = (Socket)AR.AsyncState;
             socket.EndSend(AR);
         }
+
+        private static string GetResource(string filename)
+        {
+            try
+            {
+                using (FileStream filestream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    var readFile = File.ReadAllText(filename);
+                    return readFile;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
+    
 }
